@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/zouchunxu/gof/example/helloworld/api";
+
+service Greet {
+  rpc SayHello(SayHelloReq) returns(SayHelloRsp) {};
+}
+
+message SayHelloReq {
+  string Name = 1;
+}
+
+message SayHelloRsp {
+  string Name = 1;
+}
