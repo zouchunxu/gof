@@ -44,6 +44,14 @@ func (s *Server) Init(name string) *grpc.Server {
 
 //Run 运行server
 func (s *Server) Run(address string) error {
+	go func() {
+		lis, _ := net.Listen("tcp", ":9910")
+		s.prrofServer.Serve(lis)
+	}()
+	go func() {
+		lis, _ := net.Listen("tcp", ":9909")
+		s.prrofServer.Serve(lis)
+	}()
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err

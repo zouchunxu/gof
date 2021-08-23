@@ -19,6 +19,7 @@ func main() {
 	s.Init("helloworld")
 	svc := GreetSvc{}
 	api.RegisterGreetServer(s.GrpcSever, svc)
+	s.Log.Info("aaaa")
 	if err := s.Run(":5903"); err != nil {
 		log.Fatalln(err.Error())
 	}
