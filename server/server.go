@@ -27,9 +27,9 @@ type Server struct {
 	prometheusServer *http.Server
 }
 
-//Init init
-func (s *Server) Init(name string) *grpc.Server {
-	s.Name = name
+//New init
+func New(name string) *Server {
+	s := &Server{Name: name}
 	s.GrpcSever = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(s.Mid...),
 	)
@@ -39,7 +39,7 @@ func (s *Server) Init(name string) *grpc.Server {
 	s.initJaeger()
 	s.initPprof()
 	s.initPrometheus()
-	return s.GrpcSever
+	return s
 }
 
 //Run 运行server

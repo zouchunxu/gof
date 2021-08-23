@@ -15,8 +15,7 @@ func (g GreetSvc) SayHello(ctx context.Context, req *api.SayHelloReq) (*api.SayH
 }
 
 func main() {
-	s := server.Server{}
-	s.Init("helloworld")
+	s := server.New("helloworld")
 	svc := GreetSvc{}
 	api.RegisterGreetServer(s.GrpcSever, svc)
 	s.Log.Info("aaaa")
