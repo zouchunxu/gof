@@ -15,10 +15,11 @@ func (g GreetSvc) SayHello(ctx context.Context, req *api.SayHelloReq) (*api.SayH
 }
 
 func main() {
-	s := server.Init()
+	s := server.Server{}
+	s.Init("helloworld")
 	svc := GreetSvc{}
-	api.RegisterGreetServer(s, svc)
-	if err := server.Run(":5903"); err != nil {
+	api.RegisterGreetServer(s.GrpcSever, svc)
+	if err := s.Run(":5903"); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
