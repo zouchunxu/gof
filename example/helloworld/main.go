@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/zouchunxu/gof/client"
+	"github.com/zouchunxu/gof/errors"
 	"github.com/zouchunxu/gof/example/helloworld/api"
 	"github.com/zouchunxu/gof/server"
 	"log"
@@ -14,6 +15,9 @@ type GreetSvc struct {
 }
 
 func (g GreetSvc) SayHello(ctx context.Context, req *api.SayHelloReq) (*api.SayHelloRsp, error) {
+	if req.Name == "error" {
+		return nil, errors.BadRequest("helloworld", "custom_error", fmt.Sprintf("invalid argument %s", req.Name))
+	}
 	return &api.SayHelloRsp{
 		Name: req.Name,
 	}, nil
@@ -36,7 +40,7 @@ func main() {
 	}
 	cs := api.NewGreetClient(conn)
 	rsp, err := cs.SayHello(context.Background(), &api.SayHelloReq{
-		Name: "aa",
+		Name: "error",
 	})
 	if err != nil {
 		s.Log.Errorf("err: %+v", err)
