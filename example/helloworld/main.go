@@ -44,6 +44,7 @@ func main() {
 	})
 	if err != nil {
 		s.Log.Errorf("err: %+v", err)
+		fmt.Println(errors.Domain(err))
 	} else {
 		fmt.Println(rsp.Name)
 	}

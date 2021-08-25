@@ -10,6 +10,8 @@ import (
 	opentracing3 "github.com/zouchunxu/gof/middlewares/opentracing"
 	"github.com/zouchunxu/gof/middlewares/prometheus"
 	"google.golang.org/grpc"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -23,6 +25,7 @@ type Server struct {
 	Mid              []grpc.UnaryServerInterceptor
 	Name             string
 	Log              *logrus.Logger
+	DB               *gorm.DB
 	prrofServer      *http.Server
 	prometheusServer *http.Server
 }
@@ -39,6 +42,7 @@ func New(name string) *Server {
 	s.initJaeger()
 	s.initPprof()
 	s.initPrometheus()
+	s.initDB()
 	return s
 }
 
@@ -115,4 +119,20 @@ func (s *Server) initLog() {
 	s.Log.SetFormatter(&logrus.JSONFormatter{})
 	s.Log.SetOutput(os.Stdout)
 	s.Log.SetLevel(logrus.InfoLevel)
+}
+
+//initDB 初始化数据库
+func (s *Server) initDB() {
+	db, err := gorm.Open(mysql.New(mysql.Config{
+		DSN:                       "root:root@tcp(127.0.0.1:3306)/gof?charset=utf8&parseTime=True&loc=Local",
+		DefaultStringSize:         256,
+		DisableDatetimePrecision:  true,
+		DontSupportRenameIndex:    true,
+		DontSupportRenameColumn:   true,
+		SkipInitializeWithVersion: false,
+	}), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	s.DB = db
 }
