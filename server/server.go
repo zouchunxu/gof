@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-//Server server，框架目前未引入配置，所以一些值先固定死
+//Server server，目前未引入配置，所以一些值先固定死
 type Server struct {
 	GrpcSever        *grpc.Server
 	Mid              []grpc.UnaryServerInterceptor
