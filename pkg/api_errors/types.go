@@ -1,12 +1,12 @@
-package errors
+package api_errors
 
 import (
 	"google.golang.org/grpc/codes"
 )
 
 // BadRequest new BadRequest error that is mapped to a 400 response.
-func BadRequest(domain, reason, message string) *Error {
-	return Newf(codes.InvalidArgument, domain, reason, message)
+func BadRequest(domain, reason, message string) *ApiError {
+	return New(codes.InvalidArgument, domain, reason, message)
 }
 
 // IsBadRequest determines if err is an error which indicates a BadRequest error.
@@ -16,7 +16,7 @@ func IsBadRequest(err error) bool {
 }
 
 // Unauthorized new Unauthorized error that is mapped to a 401 response.
-func Unauthorized(domain, reason, message string) *Error {
+func Unauthorized(domain, reason, message string) *ApiError {
 	return Newf(codes.Unauthenticated, domain, reason, message)
 }
 
@@ -27,7 +27,7 @@ func IsUnauthorized(err error) bool {
 }
 
 // Forbidden new Forbidden error that is mapped to a 403 response.
-func Forbidden(domain, reason, message string) *Error {
+func Forbidden(domain, reason, message string) *ApiError {
 	return Newf(codes.PermissionDenied, domain, reason, message)
 }
 
@@ -38,7 +38,7 @@ func IsForbidden(err error) bool {
 }
 
 // NotFound new NotFound error that is mapped to a 404 response.
-func NotFound(domain, reason, message string) *Error {
+func NotFound(domain, reason, message string) *ApiError {
 	return Newf(codes.NotFound, domain, reason, message)
 }
 
@@ -49,7 +49,7 @@ func IsNotFound(err error) bool {
 }
 
 // Conflict new Conflict error that is mapped to a 409 response.
-func Conflict(domain, reason, message string) *Error {
+func Conflict(domain, reason, message string) *ApiError {
 	return Newf(codes.Aborted, domain, reason, message)
 }
 
@@ -60,7 +60,7 @@ func IsConflict(err error) bool {
 }
 
 // InternalServer new InternalServer error that is mapped to a 500 response.
-func InternalServer(domain, reason, message string) *Error {
+func InternalServer(domain, reason, message string) *ApiError {
 	return Newf(codes.Internal, domain, reason, message)
 }
 
@@ -71,7 +71,7 @@ func IsInternalServer(err error) bool {
 }
 
 // ServiceUnavailable new ServiceUnavailable error that is mapped to a HTTP 503 response.
-func ServiceUnavailable(domain, reason, message string) *Error {
+func ServiceUnavailable(domain, reason, message string) *ApiError {
 	return Newf(codes.Unavailable, domain, reason, message)
 }
 

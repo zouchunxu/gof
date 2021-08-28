@@ -1,2 +1,2 @@
 proto:
-	protoc --proto_path=. --proto_path=./api --go_out=paths=source_relative:. --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative  ./api/*.proto
+	protoc --proto_path=. --proto_path="./third_party/" --proto_path=./api --gin_out="paths=source_relative:." --go_out=paths=source_relative:. --go-grpc_out=require_unimplemented_servers=false:. --go-grpc_opt=paths=source_relative  ./api/*.proto

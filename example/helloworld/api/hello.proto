@@ -2,10 +2,16 @@ syntax = "proto3";
 
 package api;
 
+import "google/api/annotations.proto";
+
 option go_package = "github.com/zouchunxu/gof/example/helloworld/api";
 
 service Greet {
-  rpc SayHello(SayHelloReq) returns(SayHelloRsp) {};
+  rpc SayHello(SayHelloReq) returns(SayHelloRsp) {
+    option (google.api.http) = {
+      get: "/say/hello",
+    };
+  };
 }
 
 message SayHelloReq {
