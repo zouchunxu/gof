@@ -4,9 +4,11 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 	"github.com/uber/jaeger-lib/metrics"
+	cfg "github.com/zouchunxu/gof/config"
 	opentracing3 "github.com/zouchunxu/gof/middlewares/opentracing"
 	"github.com/zouchunxu/gof/middlewares/prometheus"
 	"google.golang.org/grpc"
@@ -19,20 +21,23 @@ import (
 	"time"
 )
 
-//Server server，目前未引入配置，所以一些值先固定死
+//Server server
 type Server struct {
 	GrpcSever        *grpc.Server
 	Mid              []grpc.UnaryServerInterceptor
-	Name             string
 	Log              *logrus.Logger
 	DB               *gorm.DB
 	prrofServer      *http.Server
 	prometheusServer *http.Server
+	c                cfg.System
+	path             string
 }
 
 //New init
-func New(name string) *Server {
-	s := &Server{Name: name}
+func New(path string) *Server {
+	s := &Server{path: path}
+	s.initConfig()
+	//s.c = cfg.System{}
 	s.GrpcSever = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(s.Mid...),
 	)
@@ -47,16 +52,16 @@ func New(name string) *Server {
 }
 
 //Run 运行server
-func (s *Server) Run(address string) error {
+func (s *Server) Run() error {
 	go func() {
-		lis, _ := net.Listen("tcp", ":9910")
+		lis, _ := net.Listen("tcp", s.c.PrometheusHost)
 		s.prometheusServer.Serve(lis)
 	}()
 	go func() {
-		lis, _ := net.Listen("tcp", ":9909")
+		lis, _ := net.Listen("tcp", s.c.PprofHost)
 		s.prrofServer.Serve(lis)
 	}()
-	lis, err := net.Listen("tcp", address)
+	lis, err := net.Listen("tcp", s.c.ServerPort)
 	if err != nil {
 		return err
 	}
@@ -69,17 +74,17 @@ func (s *Server) initJaeger() {
 		Type:  "const",
 		Param: 1,
 	}
-	cfg := &config.Configuration{
-		ServiceName: s.Name,
+	jcfg := &config.Configuration{
+		ServiceName: s.c.Name,
 		Sampler:     sampler,
 		Reporter: &config.ReporterConfig{
 			LogSpans:            true,
-			LocalAgentHostPort:  "127.0.0.1:9502",
+			LocalAgentHostPort:  s.c.JaegerHost,
 			BufferFlushInterval: 1 * time.Second,
 			QueueSize:           200,
 		},
 	}
-	tracer, _, err := cfg.NewTracer(
+	tracer, _, err := jcfg.NewTracer(
 		config.Logger(jaeger.NullLogger),
 		config.Metrics(metrics.NullFactory),
 	)
@@ -93,7 +98,7 @@ func (s *Server) initJaeger() {
 func (s *Server) initPprof() {
 	mux := &http.ServeMux{}
 	s.prrofServer = &http.Server{
-		Addr:    ":9909",
+		Addr:    s.c.PprofHost,
 		Handler: mux,
 	}
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
@@ -107,7 +112,7 @@ func (s *Server) initPprof() {
 func (s *Server) initPrometheus() {
 	mux := &http.ServeMux{}
 	s.prometheusServer = &http.Server{
-		Addr:    ":9910",
+		Addr:    s.c.PrometheusHost,
 		Handler: mux,
 	}
 	mux.Handle("/metrics", promhttp.Handler())
@@ -124,7 +129,7 @@ func (s *Server) initLog() {
 //initDB 初始化数据库
 func (s *Server) initDB() {
 	db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN:                       "root:root@tcp(127.0.0.1:3306)/gof?charset=utf8&parseTime=True&loc=Local",
+		DSN:                       s.c.DSN,
 		DefaultStringSize:         256,
 		DisableDatetimePrecision:  true,
 		DontSupportRenameIndex:    true,
@@ -135,4 +140,15 @@ func (s *Server) initDB() {
 		panic("failed to connect database")
 	}
 	s.DB = db
+}
+
+func (s *Server) initConfig() {
+	viper.SetConfigFile(s.path)
+	viper.SetConfigType("yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err.Error())
+	}
+	if err := viper.Unmarshal(&s.c); err != nil {
+		panic(err.Error())
+	}
 }
