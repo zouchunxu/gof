@@ -38,7 +38,7 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+		fmt.Printf("zcx : There are %d pods in the cluster\n", len(pods.Items))
 
 		// Examples for error handling:
 		// - Use helper functions e.g. errors.IsNotFound()
