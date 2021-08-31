@@ -11,6 +11,8 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible
+	go.etcd.io/bbolt v1.3.6 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.0-rc.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c
 	google.golang.org/grpc v1.40.0
