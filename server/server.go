@@ -13,7 +13,6 @@ import (
 	opentracing3 "github.com/zouchunxu/gof/middlewares/opentracing"
 	"github.com/zouchunxu/gof/middlewares/prometheus"
 	"google.golang.org/grpc"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net"
 	"net/http"
@@ -134,18 +133,18 @@ func (s *App) initLog() {
 
 //initDB 初始化数据库
 func (s *App) initDB() {
-	db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN:                       s.c.DSN,
-		DefaultStringSize:         256,
-		DisableDatetimePrecision:  true,
-		DontSupportRenameIndex:    true,
-		DontSupportRenameColumn:   true,
-		SkipInitializeWithVersion: false,
-	}), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-	s.DB = db
+	//db, err := gorm.Open(mysql.New(mysql.Config{
+	//	DSN:                       s.c.DSN,
+	//	DefaultStringSize:         256,
+	//	DisableDatetimePrecision:  true,
+	//	DontSupportRenameIndex:    true,
+	//	DontSupportRenameColumn:   true,
+	//	SkipInitializeWithVersion: false,
+	//}), &gorm.Config{})
+	//if err != nil {
+	//	panic("failed to connect database")
+	//}
+	//s.DB = db
 }
 
 func (s *App) initConfig() {
