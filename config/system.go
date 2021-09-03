@@ -6,6 +6,7 @@ type System struct {
 	PprofHost      string `mapstructure:"pprof-host"`
 	JaegerHost     string `mapstructure:"jaeger-host"`
 	ServerPort     string `mapstructure:"server-port"`
+	HttpPort       string `mapstructure:"http-port"`
 	PrometheusHost string `mapstructure:"prometheus-host"`
 }
 

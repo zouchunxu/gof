@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/zouchunxu/gof/deployment/helloworld/api";
+
+import "google/api/annotations.proto";
+
+service Deploy {
+  rpc List(DeployListReq) returns(DeployListRsp) {
+    option (google.api.http) = {
+      get: "/deploy/list",
+    };
+  }
+  rpc Create(DeployCreateReq) returns(DeployCreateRsp) {
+    option (google.api.http) = {
+      post: "/deploy/create",
+    };
+  }
+  rpc Update(DeployUpdateReq) returns(DeployUpdateRsp) {
+    option (google.api.http) = {
+      post: "/deploy/update",
+    };
+  }
+  rpc Delete(DeployDeleteReq) returns(DeployDeleteRsp) {
+    option (google.api.http) = {
+      post: "/deploy/update",
+    };
+  }
+}
+
+message DeployListReq {
+  uint32 Page = 1;
+  uint32 PageSize = 2;
+}
+
+message DeployListRsp {
+  message Row {
+    string Name = 1;
+    string Image = 2;
+  }
+  repeated Row List = 1;
+}
+
+message DeployCreateReq {
+  string Name = 1;
+  string Image = 2;
+}
+
+message DeployCreateRsp {
+}
+
+message DeployUpdateReq {
+  uint32 ID = 1;
+  string Name = 2;
+  string Image = 3;
+}
+
+message DeployUpdateRsp {
+}
+
+message DeployDeleteReq {
+  uint32 Id = 1;
+}
+
+message DeployDeleteRsp {
+}

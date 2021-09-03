@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -31,6 +32,7 @@ type App struct {
 	prometheusServer *http.Server
 	c                cfg.System
 	path             string
+	G                *gin.Engine
 }
 
 //New init
@@ -48,6 +50,7 @@ func New(path string) *App {
 	s.initPprof()
 	s.initPrometheus()
 	s.initDB()
+	s.initHttpServer()
 	return s
 }
 
@@ -60,6 +63,9 @@ func (s *App) Run() error {
 	go func() {
 		lis, _ := net.Listen("tcp", s.c.PprofHost)
 		s.prrofServer.Serve(lis)
+	}()
+	go func() {
+		s.G.Run(s.c.HttpPort)
 	}()
 	lis, err := net.Listen("tcp", s.c.ServerPort)
 	if err != nil {
@@ -151,4 +157,8 @@ func (s *App) initConfig() {
 	if err := viper.Unmarshal(&s.c); err != nil {
 		panic(err.Error())
 	}
+}
+
+func (s *App) initHttpServer() {
+	s.G = gin.New()
 }
