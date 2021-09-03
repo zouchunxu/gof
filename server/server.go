@@ -160,5 +160,5 @@ func (s *App) initConfig() {
 }
 
 func (s *App) initHttpServer() {
-	s.G = gin.New()
+	s.G = gin.Default()
 }

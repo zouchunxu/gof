@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/zouchunxu/deployment/api"
 	"github.com/zouchunxu/deployment/internal/biz"
+	"github.com/zouchunxu/deployment/internal/data"
 	"github.com/zouchunxu/gof/pkg/api_errors"
 	"github.com/zouchunxu/gof/server"
 )
@@ -11,7 +12,7 @@ import (
 func NewDeployService(app *server.App) api.DeployServer {
 	return &DeployService{
 		app:    app,
-		deploy: biz.NewDeployUsecase(app),
+		deploy: biz.NewDeployUsecase(app, data.NewDeployRepo(app)),
 	}
 }
 

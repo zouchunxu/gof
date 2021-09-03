@@ -24,7 +24,7 @@ service Deploy {
   }
   rpc Delete(DeployDeleteReq) returns(DeployDeleteRsp) {
     option (google.api.http) = {
-      post: "/deploy/update",
+      post: "/deploy/delete",
     };
   }
 }

@@ -1,7 +1,6 @@
 package biz
 
 import (
-	"github.com/zouchunxu/deployment/internal/data"
 	"github.com/zouchunxu/gof/server"
 )
 
@@ -22,10 +21,10 @@ type DeployUsecase struct {
 	repo DeployRepo
 }
 
-func NewDeployUsecase(app *server.App) *DeployUsecase {
+func NewDeployUsecase(app *server.App, repo DeployRepo) *DeployUsecase {
 	return &DeployUsecase{
 		app:  app,
-		repo: data.NewDeployRepo(app),
+		repo: repo,
 	}
 }
 

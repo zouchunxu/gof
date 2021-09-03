@@ -113,7 +113,7 @@ func NewDeployHandler(srv DeployHandler, route *gin.Engine) {
 		c.JSON(200, responses.New(0, out, "ok"))
 	})
 
-	route.Handle("POST", "/deploy/update", func(c *gin.Context) {
+	route.Handle("POST", "/deploy/delete", func(c *gin.Context) {
 		var in DeployDeleteReq
 		if "POST" == "GET" {
 			if err := c.ShouldBindQuery(&in); err != nil {
