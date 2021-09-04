@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: gof-deploy
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:

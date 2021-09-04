@@ -8,4 +8,4 @@ run:
 	kubectl apply -f deployment.yaml
 
 rbac:
-	kubectl create clusterrolebinding default-view --clusterrole=view --serviceaccount=default:default
+	kubectl update clusterrolebinding default-view --clusterrole=cluster-admin --serviceaccount=default:default

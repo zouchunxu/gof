@@ -16,7 +16,7 @@ func main() {
 	}
 	app := server.New(*path)
 	svr.Init(app)
-
+	app.Log.Info("start hhhhhhhhhh \n")
 	if err := app.Run(); err != nil {
 		log.Fatal(err.Error())
 	}
