@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"net"
+	"net/url"
 )
 
 type GrpcServer struct {
@@ -34,4 +35,11 @@ func (g *GrpcServer) Stop() error {
 	g.GracefulStop()
 	g.health.Shutdown()
 	return nil
+}
+
+// Endpoint return a real address to registry endpoint.
+// examples:
+//   grpc://127.0.0.1:9000?isSecure=false
+func (g *GrpcServer) Endpoint() (*url.URL, error) {
+	panic("implement me")
 }

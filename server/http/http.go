@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 type HttpServer struct {
@@ -28,4 +29,11 @@ func (h *HttpServer) Start() error {
 
 func (h *HttpServer) Stop() error {
 	return h.s.Shutdown(context.Background())
+}
+
+// Endpoint return a real address to registry endpoint.
+// examples:
+//   grpc://127.0.0.1:9000?isSecure=false
+func (h *HttpServer) Endpoint() (*url.URL, error) {
+	panic("implement me")
 }
