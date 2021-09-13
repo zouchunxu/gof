@@ -37,7 +37,11 @@ func (h *HttpServer) AddRouter(pattern string, handler http.Handler) {
 }
 
 func (h *HttpServer) Start(context.Context) error {
-	return h.s.ListenAndServe()
+	l, err := net.Listen("tcp", h.addr)
+	if err != nil {
+		return err
+	}
+	return h.s.Serve(l)
 }
 
 func (h *HttpServer) Stop(context.Context) error {
