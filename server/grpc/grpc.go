@@ -1,10 +1,12 @@
 package grpc
 
 import (
+	"context"
 	"github.com/zouchunxu/gof/internal/endpoint"
 	"github.com/zouchunxu/gof/internal/host"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"net/url"
 	"sync"
@@ -18,16 +20,17 @@ type GrpcServer struct {
 	endpoint *url.URL
 }
 
-func NewGrpcServer(addr string) *GrpcServer {
+func NewGrpcServer(addr string, mid ...grpc.UnaryServerInterceptor) *GrpcServer {
 	g := &GrpcServer{
-		Server: grpc.NewServer(),
+		Server: grpc.NewServer(grpc.ChainUnaryInterceptor(mid...)),
 		addr:   addr,
 		health: health.NewServer(),
 	}
+	reflection.Register(g.Server)
 	return g
 }
 
-func (g *GrpcServer) Start() error {
+func (g *GrpcServer) Start(context.Context) error {
 	lis, err := net.Listen("tcp", g.addr)
 	if err != nil {
 		return err
@@ -36,7 +39,7 @@ func (g *GrpcServer) Start() error {
 	return g.Serve(lis)
 }
 
-func (g *GrpcServer) Stop() error {
+func (g *GrpcServer) Stop(context.Context) error {
 	g.GracefulStop()
 	g.health.Shutdown()
 	return nil

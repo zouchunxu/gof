@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -12,18 +14,23 @@ import (
 	cfg "github.com/zouchunxu/gof/config"
 	opentracing3 "github.com/zouchunxu/gof/middlewares/opentracing"
 	"github.com/zouchunxu/gof/middlewares/prometheus"
+	zgrpc "github.com/zouchunxu/gof/server/grpc"
+	zhttp "github.com/zouchunxu/gof/server/http"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
-	"net"
 	"net/http"
 	"net/http/pprof"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 )
 
 //App server
 type App struct {
-	GrpcSever        *grpc.Server
+	GrpcSever        *zgrpc.GrpcServer
 	Mid              []grpc.UnaryServerInterceptor
 	Log              *logrus.Logger
 	DB               *gorm.DB
@@ -32,6 +39,7 @@ type App struct {
 	c                cfg.System
 	path             string
 	G                *gin.Engine
+	servers          []Server
 }
 
 //New init
@@ -39,11 +47,10 @@ func New(path string) *App {
 	s := &App{path: path}
 	s.initConfig()
 	//s.c = cfg.System{}
-	s.GrpcSever = grpc.NewServer(
-		grpc.ChainUnaryInterceptor(s.Mid...),
-	)
 	s.Mid = append(s.Mid, opentracing3.OpentracingServerInterceptor(opentracing.GlobalTracer()))
 	s.Mid = append(s.Mid, prometheus.UnaryServerInterceptor)
+	s.GrpcSever = zgrpc.NewGrpcServer(s.c.ServerPort, s.Mid...)
+	s.servers = append(s.servers, s.GrpcSever)
 	s.initLog()
 	s.initJaeger()
 	s.initPprof()
@@ -55,22 +62,47 @@ func New(path string) *App {
 
 //Run 运行server
 func (s *App) Run() error {
-	go func() {
-		lis, _ := net.Listen("tcp", s.c.PrometheusHost)
-		s.prometheusServer.Serve(lis)
-	}()
-	go func() {
-		lis, _ := net.Listen("tcp", s.c.PprofHost)
-		s.prrofServer.Serve(lis)
-	}()
-	go func() {
-		s.G.Run(s.c.HttpPort)
-	}()
-	lis, err := net.Listen("tcp", s.c.ServerPort)
-	if err != nil {
+	ctx := context.Background()
+	eg, ctx := errgroup.WithContext(ctx)
+	wg := sync.WaitGroup{}
+	for _, srv := range s.servers {
+		srv := srv
+		eg.Go(func() error {
+			<-ctx.Done() // wait for stop signal
+			return srv.Stop(ctx)
+		})
+		wg.Add(1)
+		eg.Go(func() error {
+			wg.Done()
+			return srv.Start(ctx)
+		})
+	}
+	wg.Wait()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+	eg.Go(func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-c:
+				err := s.Stop()
+				if err != nil {
+					s.Log.Errorf("failed to app stop: %v", err)
+				}
+			}
+		}
+	})
+	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}
-	return s.GrpcSever.Serve(lis)
+	return nil
+}
+
+//Stop todo
+func (s *App) Stop() error {
+	return nil
 }
 
 //initJaeger 初始化jaeger
@@ -101,26 +133,20 @@ func (s *App) initJaeger() {
 
 //initPprof 初始化pprof
 func (s *App) initPprof() {
-	mux := &http.ServeMux{}
-	s.prrofServer = &http.Server{
-		Addr:    s.c.PprofHost,
-		Handler: mux,
-	}
-	mux.HandleFunc("/debug/pprof/", pprof.Index)
-	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	svr := zhttp.NewHttpServer(s.c.PprofHost)
+	svr.AddRouterFunc("/debug/pprof/", pprof.Index)
+	svr.AddRouterFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	svr.AddRouterFunc("/debug/pprof/profile", pprof.Profile)
+	svr.AddRouterFunc("/debug/pprof/symbol", pprof.Symbol)
+	svr.AddRouterFunc("/debug/pprof/trace", pprof.Trace)
+	s.servers = append(s.servers, svr)
 }
 
 //initPrometheus 初始化prometheus
 func (s *App) initPrometheus() {
-	mux := &http.ServeMux{}
-	s.prometheusServer = &http.Server{
-		Addr:    s.c.PrometheusHost,
-		Handler: mux,
-	}
-	mux.Handle("/metrics", promhttp.Handler())
+	svr := zhttp.NewHttpServer(s.c.PrometheusHost)
+	svr.AddRouter("/metrics", promhttp.Handler())
+	s.servers = append(s.servers, svr)
 }
 
 //initLog 初始化日志

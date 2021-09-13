@@ -18,24 +18,29 @@ type HttpServer struct {
 	addr     string
 }
 
-func NewHttpServer(addr string) {
-	h := HttpServer{
+func NewHttpServer(addr string) *HttpServer {
+	h := &HttpServer{
 		s:    &http.Server{},
 		mux:  http.NewServeMux(),
 		addr: addr,
 	}
 	h.s.Handler = h.mux
+	return h
 }
 
-func (h *HttpServer) AddRouter(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+func (h *HttpServer) AddRouterFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
 	h.mux.HandleFunc(pattern, handler)
 }
 
-func (h *HttpServer) Start() error {
+func (h *HttpServer) AddRouter(pattern string, handler http.Handler) {
+	h.mux.Handle(pattern, handler)
+}
+
+func (h *HttpServer) Start(context.Context) error {
 	return h.s.ListenAndServe()
 }
 
-func (h *HttpServer) Stop() error {
+func (h *HttpServer) Stop(context.Context) error {
 	return h.s.Shutdown(context.Background())
 }
 
