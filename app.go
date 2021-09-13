@@ -1,4 +1,4 @@
-package server
+package gof
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	cfg "github.com/zouchunxu/gof/config"
 	opentracing3 "github.com/zouchunxu/gof/middlewares/opentracing"
 	"github.com/zouchunxu/gof/middlewares/prometheus"
+	"github.com/zouchunxu/gof/server"
 	zgrpc "github.com/zouchunxu/gof/server/grpc"
 	zhttp "github.com/zouchunxu/gof/server/http"
 	"golang.org/x/sync/errgroup"
@@ -39,7 +40,7 @@ type App struct {
 	c                cfg.System
 	path             string
 	G                *gin.Engine
-	servers          []Server
+	servers          []server.Server
 }
 
 //New init

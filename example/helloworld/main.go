@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/viper"
+	"github.com/zouchunxu/gof"
 	"github.com/zouchunxu/gof/client"
 	"github.com/zouchunxu/gof/example/helloworld/api"
 	"github.com/zouchunxu/gof/example/helloworld/config"
 	"github.com/zouchunxu/gof/pkg/api_errors"
 	"github.com/zouchunxu/gof/registry"
-	"github.com/zouchunxu/gof/server"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"log"
 	"time"
@@ -30,7 +30,7 @@ func (g GreetSvc) SayHello(ctx context.Context, req *api.SayHelloReq) (*api.SayH
 func main() {
 	go func() {
 		var cfg config.Config
-		s := server.New("/Users/zouchunxu/web/docker/wwwroot/go/gof/example/helloworld/app.yaml")
+		s := gof.New("/Users/zouchunxu/web/docker/wwwroot/go/gof/example/helloworld/app.yaml")
 		//g := gin.New()
 		svc := GreetSvc{}
 		api.RegisterGreetServer(s.GrpcSever, svc)

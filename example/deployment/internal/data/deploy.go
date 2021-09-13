@@ -3,7 +3,7 @@ package data
 import (
 	"context"
 	"github.com/zouchunxu/deployment/internal/biz"
-	"github.com/zouchunxu/gof/server"
+	"github.com/zouchunxu/gof"
 	v1 "k8s.io/api/apps/v1"
 	cv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,7 +15,7 @@ import (
 )
 
 type deployRepo struct {
-	app *server.App
+	app *gof.App
 }
 
 func (d deployRepo) ListDeploy(page, pageSize uint32) ([]*biz.Deploy, error) {
@@ -177,7 +177,7 @@ func (d deployRepo) DeleteDeploy(id uint32) error {
 	panic("implement me")
 }
 
-func NewDeployRepo(app *server.App) biz.DeployRepo {
+func NewDeployRepo(app *gof.App) biz.DeployRepo {
 	return deployRepo{
 		app: app,
 	}

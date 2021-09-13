@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/zouchunxu/deployment/internal/svr"
-	"github.com/zouchunxu/gof/server"
+	"github.com/zouchunxu/gof"
 	"log"
 )
 
@@ -14,7 +14,7 @@ func main() {
 	if path == nil {
 		log.Fatal("fail")
 	}
-	app := server.New(*path)
+	app := gof.New(*path)
 	svr.Init(app)
 	app.Log.Info("start hhhhhhhhhh \n")
 	if err := app.Run(); err != nil {

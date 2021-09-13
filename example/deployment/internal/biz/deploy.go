@@ -1,7 +1,7 @@
 package biz
 
 import (
-	"github.com/zouchunxu/gof/server"
+	"github.com/zouchunxu/gof"
 )
 
 type Deploy struct {
@@ -17,11 +17,11 @@ type DeployRepo interface {
 }
 
 type DeployUsecase struct {
-	app  *server.App
+	app  *gof.App
 	repo DeployRepo
 }
 
-func NewDeployUsecase(app *server.App, repo DeployRepo) *DeployUsecase {
+func NewDeployUsecase(app *gof.App, repo DeployRepo) *DeployUsecase {
 	return &DeployUsecase{
 		app:  app,
 		repo: repo,

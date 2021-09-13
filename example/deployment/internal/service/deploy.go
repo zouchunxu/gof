@@ -5,11 +5,11 @@ import (
 	"github.com/zouchunxu/deployment/api"
 	"github.com/zouchunxu/deployment/internal/biz"
 	"github.com/zouchunxu/deployment/internal/data"
+	"github.com/zouchunxu/gof"
 	"github.com/zouchunxu/gof/pkg/api_errors"
-	"github.com/zouchunxu/gof/server"
 )
 
-func NewDeployService(app *server.App) api.DeployServer {
+func NewDeployService(app *gof.App) api.DeployServer {
 	return &DeployService{
 		app:    app,
 		deploy: biz.NewDeployUsecase(app, data.NewDeployRepo(app)),
@@ -17,7 +17,7 @@ func NewDeployService(app *server.App) api.DeployServer {
 }
 
 type DeployService struct {
-	app    *server.App
+	app    *gof.App
 	deploy *biz.DeployUsecase
 }
 
