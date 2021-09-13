@@ -24,11 +24,12 @@ func BuildFilterSelector(selector Selector, filters ...Filter) *FilterSelector {
 }
 
 // Select one node via node filters
-func (fs *FilterSelector) Select(ctx context.Context, nodes []Node) (selected Node, done Done, err error) {
+func (fs *FilterSelector) Select(ctx context.Context, nodes []Node) (Node, Done, error) {
 	for _, filter := range fs.filters {
+		var err error
 		nodes, err = filter.Filter(ctx, nodes)
 		if err != nil {
-			return
+			return nil, nil, err
 		}
 	}
 	if len(nodes) == 0 {
