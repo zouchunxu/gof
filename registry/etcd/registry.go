@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"context"
+	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"math/rand"
 	"time"
@@ -50,8 +51,8 @@ func (r *Registry) heartBeat(ctx context.Context, leaseID clientv3.LeaseID, key 
 				if ctx.Err() != nil {
 					return
 				}
-				idChan := make(chan clientv3.LeaseID, 1)
-				errChan := make(chan error, 1)
+				idChan := make(chan clientv3.LeaseID)
+				errChan := make(chan error)
 				cancelCtx, cancel := context.WithCancel(ctx)
 				go func() {
 					defer cancel()
@@ -86,6 +87,7 @@ func (r *Registry) heartBeat(ctx context.Context, leaseID clientv3.LeaseID, key 
 		select {
 		case _, ok := <-kac:
 			if !ok {
+				fmt.Println("not ok")
 				if ctx.Err() != nil {
 					return
 				}
