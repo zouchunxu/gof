@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"k8s.io/apimachinery/pkg/util/json"
 	"math/rand"
 	"time"
 )
@@ -14,6 +15,8 @@ type Registry struct {
 	lease  clientv3.Lease
 }
 
+var namespace = "gof"
+
 //New creates etcd registry
 func New(client *clientv3.Client) *Registry {
 	return &Registry{
@@ -22,11 +25,15 @@ func New(client *clientv3.Client) *Registry {
 	}
 }
 
-func (r *Registry) Registry(ctx context.Context) error {
-	key := ""
-	value := ""
+func (r *Registry) Registry(ctx context.Context, key string, values []string) error {
+	key = namespace + "/" + key + "/" + "service"
+	tmp, err := json.Marshal(values)
+	if err != nil {
+		return err
+	}
+	value := string(tmp)
 	if r.lease != nil {
-		r.lease.Close()
+		_ = r.lease.Close()
 	}
 	r.lease = clientv3.NewLease(r.client)
 	leaseID, err := r.registerWithKV(ctx, key, value)
@@ -102,7 +109,7 @@ func (r *Registry) heartBeat(ctx context.Context, leaseID clientv3.LeaseID, key 
 
 //registerWithKV create a new lease, return current leaseID
 func (r *Registry) registerWithKV(ctx context.Context, key, value string) (clientv3.LeaseID, error) {
-	grant, err := r.lease.Grant(ctx, int64(time.Second.Seconds())*15)
+	grant, err := r.lease.Grant(ctx, int64(time.Second.Seconds()))
 	if err != nil {
 		return 0, err
 	}
@@ -111,6 +118,21 @@ func (r *Registry) registerWithKV(ctx context.Context, key, value string) (clien
 		return 0, err
 	}
 	return grant.ID, nil
+}
+
+func (r *Registry) GetService(ctx context.Context, name string) ([]string, error) {
+	key := namespace + "/" + name
+	resp, err := r.kv.Get(ctx, key, clientv3.WithPrefix())
+	if err != nil {
+		return nil, err
+	}
+	var ip []string
+	for _, kv := range resp.Kvs {
+		var list []string
+		_ = json.Unmarshal(kv.Value, list)
+		ip = append(ip, list...)
+	}
+	return ip, nil
 }
 
 //// Watch creates a watcher according to the service name.
