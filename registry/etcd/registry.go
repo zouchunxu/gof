@@ -135,8 +135,9 @@ func (r *Registry) GetService(ctx context.Context, name string) ([]string, error
 	return ip, nil
 }
 
-func (r *Registry) Watch(ctx context.Context, name string) {
-
+func (r *Registry) Watch(ctx context.Context, name string) (*watcher, error) {
+	key := fmt.Sprintf("%s/%s", namespace, name)
+	return newWatcher(ctx, key, r.client), nil
 }
 
 //// Watch creates a watcher according to the service name.
