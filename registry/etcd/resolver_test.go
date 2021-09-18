@@ -22,11 +22,6 @@ func TestConn(t *testing.T) {
 	r := New(client)
 	b := NewBuilder(r)
 
-	//conn, err := grpc.Dial("zcx", grpc.WithResolvers(b), grpc.WithInsecure())
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-
 	_, err = b.Build(resolver.Target{
 		Endpoint: "zcx",
 	}, &testClientConn{}, resolver.BuildOptions{})
