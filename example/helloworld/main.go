@@ -65,7 +65,7 @@ func main() {
 	//}
 	//reg := etcd.New(cli)
 
-	conn, err := grpc.Dial("etcd://foo/foo", grpc.WithResolvers(etcd.NewBuilder(reg)), grpc.WithInsecure())
+	conn, err := grpc.Dial("etcd://foo/foo", grpc.WithResolvers(etcd.NewBuilder(cli)), grpc.WithInsecure())
 	if err != nil {
 		panic(err.Error())
 	}

@@ -5,17 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"github.com/opentracing/opentracing-go/log"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc/resolver"
 	"time"
 )
 
 type builder struct {
-	discoverer *Registry
+	client *clientv3.Client
 }
 
-func NewBuilder(discoverer *Registry) *builder {
+func NewBuilder(client *clientv3.Client) *builder {
 	return &builder{
-		discoverer: discoverer,
+		client: client,
 	}
 }
 
@@ -28,7 +29,8 @@ func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, opts res
 	done := make(chan bool, 1)
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		w, err = b.discoverer.Watch(ctx, target.Endpoint)
+		key := fmt.Sprintf("%s/%s", namespace, target.Endpoint)
+		w = newWatcher(ctx, key, b.client)
 		close(done)
 	}()
 	select {
