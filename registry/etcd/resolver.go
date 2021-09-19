@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/opentracing/opentracing-go/log"
-	endpoint2 "github.com/zouchunxu/gof/internal/endpoint"
 	"google.golang.org/grpc/resolver"
 	"time"
 )
@@ -53,7 +52,7 @@ func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, opts res
 
 // Scheme return scheme of discovery
 func (*builder) Scheme() string {
-	return "grpc"
+	return "etcd"
 }
 
 type gofResolver struct {
@@ -86,17 +85,18 @@ func (g *gofResolver) watch() {
 func (g *gofResolver) update(ips []string) {
 	addrs := make([]resolver.Address, 0)
 	for _, ip := range ips {
-		endpoint, err := endpoint2.ParseEndpoint([]string{ip}, "grpc", false)
-		if err != nil {
-			log.Error(err)
-			continue
-		}
-		if endpoint == "" {
-			continue
-		}
+		//endpoint, err := endpoint2.ParseEndpoint([]string{ip}, "grpc", false)
+		//fmt.Println("endpoint: " + endpoint)
+		//if err != nil {
+		//	log.Error(err)
+		//	continue
+		//}
+		//if endpoint == "" {
+		//	continue
+		//}
 		addr := resolver.Address{
 			ServerName: ip,
-			Addr:       endpoint,
+			Addr:       ip,
 		}
 		addrs = append(addrs, addr)
 	}
@@ -110,7 +110,6 @@ func (g *gofResolver) update(ips []string) {
 }
 
 func (g *gofResolver) ResolveNow(options resolver.ResolveNowOptions) {
-	panic("implement me")
 }
 
 func (g *gofResolver) Close() {
