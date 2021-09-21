@@ -26,10 +26,27 @@ func (g GreetSvc) SayHello(ctx context.Context, req *api.SayHelloReq) (*api.SayH
 func main() {
 	srv := grpc.NewServer()
 	api.RegisterGreetServer(srv, &GreetSvc{})
+	info := srv.GetServiceInfo()
+	for _, item := range info {
+		desc, _ := protoregistry.GlobalFiles.FindFileByPath(item.Metadata.(string))
+
+		fmt.Println(protodesc.ToFileDescriptorProto(desc).Service)
+	}
+	if true {
+		return
+	}
+
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
 		dep := protodesc.ToFileDescriptorProto(fd)
 		for _, str := range dep.Dependency {
 			fmt.Println(str)
+			desc, _ := protoregistry.GlobalFiles.FindFileByPath(str)
+
+			dp := protodesc.ToFileDescriptorProto(desc)
+
+			for _, s := range dp.Dependency {
+				fmt.Println(s)
+			}
 		}
 		return true
 	})
