@@ -5,7 +5,7 @@ import (
 	"github.com/zouchunxu/gof/selector"
 )
 
-// Version is version filter.
+// Version 版本过滤
 func Version(version string) selector.Filter {
 	return func(_ context.Context, nodes []selector.Node) []selector.Node {
 		filters := make([]selector.Node, 0, len(nodes))
