@@ -14,7 +14,7 @@ const (
 
 var _ selector.Balancer = &Balancer{} // Name is balancer name
 
-// WithFilter with select filters
+// WithFilter 过滤filter
 func WithFilter(filters ...selector.Filter) Option {
 	return func(o *options) {
 		o.filters = filters
@@ -32,7 +32,7 @@ type options struct {
 // Balancer is a random balancer.
 type Balancer struct{}
 
-// New random a selector.
+// New 随机select
 func New(opts ...Option) selector.Selector {
 	var option options
 	for _, opt := range opts {
