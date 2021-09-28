@@ -2,7 +2,6 @@ package etcd
 
 import (
 	"context"
-	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"k8s.io/apimachinery/pkg/util/json"
 )
@@ -50,7 +49,7 @@ func (w *watcher) Stop() error {
 }
 
 func (w *watcher) getIps() ([]string, error) {
-	fmt.Println("key: " + w.key)
+	//fmt.Println("key: " + w.key)
 	resp, err := w.kv.Get(w.ctx, w.key, clientv3.WithPrefix())
 	if err != nil {
 		return nil, err
@@ -59,7 +58,7 @@ func (w *watcher) getIps() ([]string, error) {
 	for _, kv := range resp.Kvs {
 		var ips []string
 		err = json.Unmarshal(kv.Value, &ips)
-		fmt.Println(ips)
+		//fmt.Println(ips)
 		if err != nil {
 			return nil, err
 		}

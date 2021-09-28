@@ -2,6 +2,7 @@ package selector
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -20,7 +21,7 @@ func (d *Default) Select(ctx context.Context, opts ...SelectOption) (selected No
 	d.lk.RLock()
 	weightedNodes := d.weightedNodes
 	d.lk.RUnlock()
-
+	fmt.Println("weightedNodes: ", weightedNodes[0].Address())
 	for _, f := range d.Filters {
 		weightedNodes = f(ctx, weightedNodes)
 	}

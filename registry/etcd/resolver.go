@@ -79,7 +79,7 @@ func (g *gofResolver) watch() {
 			time.Sleep(time.Second)
 			continue
 		}
-		fmt.Printf("ips: %+v\n", ips)
+		//fmt.Printf("ips: %+v\n", ips)
 		g.update(ips)
 	}
 }

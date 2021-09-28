@@ -9,6 +9,7 @@ import (
 	"github.com/zouchunxu/gof/example/helloworld/config"
 	"github.com/zouchunxu/gof/pkg/api_errors"
 	"github.com/zouchunxu/gof/registry/etcd"
+	"github.com/zouchunxu/gof/selector/random"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 	"log"
@@ -65,7 +66,9 @@ func main() {
 	//}
 	//reg := etcd.New(cli)
 
-	conn, err := grpc.Dial("etcd://foo/foo", grpc.WithResolvers(etcd.NewBuilder(cli)), grpc.WithInsecure())
+	conn, err := grpc.Dial("etcd://foo/foo", grpc.WithResolvers(etcd.NewBuilder(cli)),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, random.Name)),
+		grpc.WithInsecure())
 	if err != nil {
 		panic(err.Error())
 	}
