@@ -49,7 +49,7 @@ func (d *Default) Apply(nodes []Node) {
 		weightedNodes = append(weightedNodes, d.NodeBuilder.Build(n))
 	}
 	d.lk.Lock()
-	// TODO:  不能删除未改变的node
+	//  不能删除未改变的node
 	d.weightedNodes = weightedNodes
 	d.lk.Unlock()
 }
