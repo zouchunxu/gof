@@ -9,3 +9,7 @@ run:
 
 rbac:
 	kubectl update clusterrolebinding default-view --clusterrole=cluster-admin --serviceaccount=default:default
+
+all:
+	proto
+	build

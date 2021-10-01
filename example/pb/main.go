@@ -30,7 +30,10 @@ func main() {
 	for _, item := range info {
 		desc, _ := protoregistry.GlobalFiles.FindFileByPath(item.Metadata.(string))
 
-		fmt.Println(protodesc.ToFileDescriptorProto(desc).Service)
+		fmt.Println(desc.FullName())
+		fmt.Println(desc.Services().Get(0).Methods().Get(0).FullName())
+		//fmt.Println(desc.Messages())
+		//fmt.Println(protodesc.ToFileDescriptorProto(desc).Service)
 	}
 	if true {
 		return
@@ -38,16 +41,17 @@ func main() {
 
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
 		dep := protodesc.ToFileDescriptorProto(fd)
-		for _, str := range dep.Dependency {
-			fmt.Println(str)
-			desc, _ := protoregistry.GlobalFiles.FindFileByPath(str)
-
-			dp := protodesc.ToFileDescriptorProto(desc)
-
-			for _, s := range dp.Dependency {
-				fmt.Println(s)
-			}
-		}
+		fmt.Println(dep.Name)
+		//for _, str := range dep.Dependency {
+		//	fmt.Println(str)
+		//	desc, _ := protoregistry.GlobalFiles.FindFileByPath(str)
+		//
+		//	dp := protodesc.ToFileDescriptorProto(desc)
+		//
+		//	for _, s := range dp.Dependency {
+		//		fmt.Println(s)
+		//	}
+		//}
 		return true
 	})
 }
