@@ -54,7 +54,9 @@ func main() {
 			}
 		}()
 
-		if err := reg.Registry(context.Background(), "foo/my-service", []string{"127.0.0.1:5903"}); err != nil {
+		if err := reg.Registry(context.Background(), "foo/my-service", []string{"127.0.0.1:5903"}, map[string]interface{}{
+			"a": "b",
+		}); err != nil {
 			panic(err.Error())
 		}
 	}()

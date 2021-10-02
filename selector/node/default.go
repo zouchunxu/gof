@@ -1,12 +1,15 @@
 package node
 
+import "google.golang.org/grpc/attributes"
+
 // Node is slector node
 type Node struct {
-	Addr   string
-	Weight *int64
-	Ver    string
-	Name   string
-	Met    map[string]string
+	Addr       string
+	Weight     *int64
+	Ver        string
+	Name       string
+	Met        map[string]interface{}
+	Attributes *attributes.Attributes
 }
 
 // Address is node address
@@ -30,6 +33,10 @@ func (n *Node) Version() string {
 }
 
 // Metadata is node metadata
-func (n *Node) Metadata() map[string]string {
+func (n *Node) Metadata() map[string]interface{} {
 	return n.Met
+}
+
+func (n *Node) GetAttr() *attributes.Attributes {
+	return n.Attributes
 }

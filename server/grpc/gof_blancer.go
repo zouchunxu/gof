@@ -29,17 +29,18 @@ func (g *GofPicker) Pick(info gBalancer.PickInfo) (gBalancer.PickResult, error) 
 	selected := g.nodes[cur]
 	sub := g.subConns[selected.Address()]
 	fmt.Println("sub: ", selected.Address())
+	//fmt.Println("Attributes: ", selected.GetAttr())
 
 	return gBalancer.PickResult{
 		SubConn: sub,
 		Done: func(di gBalancer.DoneInfo) {
-			i := selector.DoneInfo{
+			_ = selector.DoneInfo{
 				Err:           di.Err,
 				BytesSent:     di.BytesSent,
 				BytesReceived: di.BytesReceived,
 				ReplyMeta:     GofTrailer(di.Trailer),
 			}
-			fmt.Printf("done i %+v", i)
+			//fmt.Printf("done i %+v", i)
 		},
 	}, nil
 }
@@ -59,9 +60,10 @@ func (g *GofBuilder) Build(info base.PickerBuildInfo) gBalancer.Picker {
 
 		var w int64 = 100
 		n := &node.Node{
-			Addr:   info.Address.Addr,
-			Name:   info.Address.ServerName,
-			Weight: &w,
+			Addr:       info.Address.Addr,
+			Name:       info.Address.ServerName,
+			Weight:     &w,
+			Attributes: info.Address.Attributes,
 		}
 		nodes = append(nodes, n)
 	}

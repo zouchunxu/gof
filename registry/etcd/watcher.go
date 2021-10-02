@@ -29,9 +29,9 @@ func newWatcher(ctx context.Context, key string, client *clientv3.Client) *watch
 	return w
 }
 
-func (w *watcher) Next() ([]string, error) {
+func (w *watcher) Next() ([]val, error) {
 	if w.first {
-		item, err := w.getIps()
+		item, err := w.getVals()
 		w.first = false
 		return item, err
 	}
@@ -39,7 +39,7 @@ func (w *watcher) Next() ([]string, error) {
 	case <-w.ctx.Done():
 		return nil, w.ctx.Err()
 	case <-w.watchChan:
-		return w.getIps()
+		return w.getVals()
 	}
 }
 
@@ -48,21 +48,22 @@ func (w *watcher) Stop() error {
 	return w.watcher.Close()
 }
 
-func (w *watcher) getIps() ([]string, error) {
+func (w *watcher) getVals() ([]val, error) {
 	//fmt.Println("key: " + w.key)
 	resp, err := w.kv.Get(w.ctx, w.key, clientv3.WithPrefix())
 	if err != nil {
 		return nil, err
 	}
-	var res []string
+	var res []val
+
 	for _, kv := range resp.Kvs {
-		var ips []string
+		var ips val
 		err = json.Unmarshal(kv.Value, &ips)
 		//fmt.Println(ips)
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, ips...)
+		res = append(res, ips)
 	}
 	return res, nil
 }

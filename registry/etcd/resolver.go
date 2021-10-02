@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/opentracing/opentracing-go/log"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
 	"time"
 )
@@ -84,9 +85,9 @@ func (g *gofResolver) watch() {
 	}
 }
 
-func (g *gofResolver) update(ips []string) {
+func (g *gofResolver) update(v []val) {
 	addrs := make([]resolver.Address, 0)
-	for _, ip := range ips {
+	for _, ip := range v {
 		//endpoint, err := endpoint2.ParseEndpoint([]string{ip}, "grpc", false)
 		//fmt.Println("endpoint: " + endpoint)
 		//if err != nil {
@@ -96,11 +97,20 @@ func (g *gofResolver) update(ips []string) {
 		//if endpoint == "" {
 		//	continue
 		//}
-		addr := resolver.Address{
-			ServerName: ip,
-			Addr:       ip,
+		var tmp []interface{}
+		for k, i := range ip.Md {
+			tmp = append(tmp, k, i)
 		}
-		addrs = append(addrs, addr)
+		for _, i := range ip.Ips {
+			addr := resolver.Address{
+				ServerName: i,
+				Addr:       i,
+			}
+			if tmp != nil {
+				addr.Attributes = attributes.New(tmp...)
+			}
+			addrs = append(addrs, addr)
+		}
 	}
 	if len(addrs) == 0 {
 		return

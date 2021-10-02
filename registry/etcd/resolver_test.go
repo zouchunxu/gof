@@ -19,8 +19,8 @@ func TestConn(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer client.Close()
-	r := New(client)
-	b := NewBuilder(r)
+	//r := New(client)
+	b := NewBuilder(client)
 
 	_, err = b.Build(resolver.Target{
 		Endpoint: "zcx",

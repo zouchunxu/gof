@@ -24,6 +24,8 @@ func TestHeartBeat(t *testing.T) {
 	r := New(client)
 	r.lease = clientv3.NewLease(client)
 	leaseID, err := r.registerWithKV(ctx, "a", "b")
+
 	fmt.Println(leaseID)
+	fmt.Println(r.GetService(ctx, "a"))
 	r.heartBeat(ctx, leaseID, "a", "c")
 }

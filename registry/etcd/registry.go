@@ -25,9 +25,18 @@ func New(client *clientv3.Client) *Registry {
 	}
 }
 
-func (r *Registry) Registry(ctx context.Context, key string, values []string) error {
+type val struct {
+	Ips []string               `json:"ips"`
+	Md  map[string]interface{} `json:"md"`
+}
+
+func (r *Registry) Registry(ctx context.Context, key string, values []string, md map[string]interface{}) error {
 	key = namespace + "/" + key + "/" + "service"
-	tmp, err := json.Marshal(values)
+	v := &val{
+		Ips: values,
+		Md:  md,
+	}
+	tmp, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
@@ -120,42 +129,22 @@ func (r *Registry) registerWithKV(ctx context.Context, key, value string) (clien
 	return grant.ID, nil
 }
 
-func (r *Registry) GetService(ctx context.Context, name string) ([]string, error) {
+func (r *Registry) GetService(ctx context.Context, name string) ([]val, error) {
 	key := namespace + "/" + name
 	resp, err := r.kv.Get(ctx, key, clientv3.WithPrefix())
 	if err != nil {
 		return nil, err
 	}
-	var ip []string
+	var v []val
 	for _, kv := range resp.Kvs {
-		var list []string
-		_ = json.Unmarshal(kv.Value, list)
-		ip = append(ip, list...)
+		var list val
+		_ = json.Unmarshal(kv.Value, &list)
+		v = append(v, list)
 	}
-	return ip, nil
+	return v, nil
 }
 
 func (r *Registry) Watch(ctx context.Context, name string) (*watcher, error) {
 	key := fmt.Sprintf("%s/%s", namespace, name)
 	return newWatcher(ctx, key, r.client), nil
 }
-
-//// Watch creates a watcher according to the service name.
-//func (r *Registry) Watch(ctx context.Context, name string) (registry.Watcher, error) {
-//	key := fmt.Sprintf("%s/%s", r.opts.namespace, name)
-//	return newWatcher(ctx, key, r.client), nil
-//}
-//
-
-//
-//// Deregister the registration.
-//func (r *Registry) Deregister(ctx context.Context, service *registry.ServiceInstance) error {
-//	defer func() {
-//		if r.lease != nil {
-//			r.lease.Close()
-//		}
-//	}()
-//	key := fmt.Sprintf("%s/%s/%s", r.opts.namespace, service.Name, service.ID)
-//	_, err := r.client.Delete(ctx, key)
-//	return err
-//}

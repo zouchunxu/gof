@@ -3,6 +3,7 @@ package selector
 import (
 	"context"
 	"errors"
+	"google.golang.org/grpc/attributes"
 )
 
 // ErrNoAvailable is no available node.
@@ -40,7 +41,9 @@ type Node interface {
 
 	// Metadata is the kv pair metadata associated with the service instance.
 	// version,namespace,region,protocol etc..
-	Metadata() map[string]string
+	Metadata() map[string]interface{}
+
+	GetAttr() *attributes.Attributes
 }
 
 // DoneInfo is callback info when RPC invoke done.
